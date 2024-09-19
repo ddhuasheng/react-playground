@@ -6,7 +6,7 @@ import iframeRaw from './iframe.html?raw'
 import { IMPORT_MAP_FILE_NAME } from '../../consts'
 
 function Preview() {
-  const { selectedFileName, files } = useContext(PlaygroundContext)
+  const { files } = useContext(PlaygroundContext)
 
   const [compiledCode, setCompiledCode] = useState('')
 
@@ -27,7 +27,7 @@ function Preview() {
 
   useEffect(() => {
     setCompiledCode(compile(files))
-  }, [selectedFileName, files])
+  }, [files])
 
   useEffect(() => {
     setIframeUrl(getIframeUrl())
