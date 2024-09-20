@@ -125,3 +125,12 @@ console.log(result.code)
 12. @typescript/ata (typescript 自动导包)
 
 13. @monaco-editor/react (monaco 编辑器)
+
+### git
+
+```bash
+git add .
+git commit -m ''
+git push origin main
+git subtree push --prefix dist origin gh-pages
+```
