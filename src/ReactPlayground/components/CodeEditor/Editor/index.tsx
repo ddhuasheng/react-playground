@@ -26,6 +26,7 @@ function Editor({ file, onChange, options }: Props) {
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.React,
       esModuleInterop: true,
+      allowImportingTsExtensions: true,
     })
 
     const ata = createATA((code, path) => {

@@ -4,11 +4,24 @@ import { compile } from './compiler'
 // import Editor from '../CodeEditor/Editor'
 import iframeRaw from './iframe.html?raw'
 import { IMPORT_MAP_FILE_NAME } from '../../consts'
+import Message from '../Message'
+
+interface MessageData {
+  data: {
+    type: 'warning' | 'error'
+    content: string
+  }
+}
 
 function Preview() {
   const { files } = useContext(PlaygroundContext)
 
   const [compiledCode, setCompiledCode] = useState('')
+
+  const [messageData, setMessageData] = useState<MessageData['data']>({
+    type: 'warning',
+    content: '',
+  })
 
   const getIframeUrl = () => {
     const res = iframeRaw
@@ -33,7 +46,16 @@ function Preview() {
     setIframeUrl(getIframeUrl())
   }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode])
 
-  console.log(iframeUrl)
+  const messageHandler = (e: MessageData) => {
+    setMessageData(e.data)
+  }
+
+  useEffect(() => {
+    window.addEventListener('message', messageHandler)
+    return () => {
+      window.removeEventListener('message', messageHandler)
+    }
+  }, [])
 
   return (
     <div style={{ height: '100%' }}>
@@ -46,6 +68,8 @@ function Preview() {
           border: 'none',
         }}
       />
+
+      <Message {...messageData} />
     </div>
   )
 }
