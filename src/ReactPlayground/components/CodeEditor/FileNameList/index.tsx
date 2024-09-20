@@ -37,7 +37,7 @@ function FileNameList() {
   }
 
   const addTab = () => {
-    addFile('Comp' + Math.random().toString().substring(2, 8) + '.tsx')
+    addFile('Comp' + Math.random().toString().substring(2, 6) + '.tsx')
     setCreating(true)
   }
 

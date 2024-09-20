@@ -115,3 +115,19 @@ const CssJs = (file: File) => {
     new Blob([content], { type: 'application/javascript' })
   )
 }
+
+self.addEventListener('message', ({ data }) => {
+  if (data.type === 'COMPILE') {
+    try {
+      self.postMessage({
+        type: 'COMPILED_CODE',
+        data: compile(data.data),
+      })
+    } catch (e) {
+      self.postMessage({
+        type: 'error',
+        data: e,
+      })
+    }
+  }
+})

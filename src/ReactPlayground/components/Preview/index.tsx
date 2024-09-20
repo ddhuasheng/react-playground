@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { PlaygroundContext } from '../../PlaygroundContext'
-import { compile } from './compiler'
-// import Editor from '../CodeEditor/Editor'
+import CompilerWorker from './compiler.worker?worker'
 import iframeRaw from './iframe.html?raw'
 import { IMPORT_MAP_FILE_NAME } from '../../consts'
 import Message from '../Message'
+import { debounce } from 'loadsh'
 
 interface MessageData {
   data: {
@@ -17,6 +17,8 @@ function Preview() {
   const { files } = useContext(PlaygroundContext)
 
   const [compiledCode, setCompiledCode] = useState('')
+
+  const compilerWorkerRef = useRef<Worker>()
 
   const [messageData, setMessageData] = useState<MessageData['data']>({
     type: 'warning',
@@ -38,9 +40,17 @@ function Preview() {
 
   const [iframeUrl, setIframeUrl] = useState(getIframeUrl())
 
-  useEffect(() => {
-    setCompiledCode(compile(files))
-  }, [files])
+  useEffect(
+    debounce(() => {
+      setTimeout(() => {
+        compilerWorkerRef.current?.postMessage({
+          type: 'COMPILE',
+          data: files,
+        })
+      })
+    }, 500) as any,
+    [files]
+  )
 
   useEffect(() => {
     setIframeUrl(getIframeUrl())
@@ -49,6 +59,15 @@ function Preview() {
   const messageHandler = (e: MessageData) => {
     setMessageData(e.data)
   }
+
+  useEffect(() => {
+    if (!compilerWorkerRef.current) {
+      compilerWorkerRef.current = new CompilerWorker()
+      compilerWorkerRef.current.addEventListener('message', ({ data }) => {
+        if (data.type === 'COMPILED_CODE') setCompiledCode(data.data)
+      })
+    }
+  }, [])
 
   useEffect(() => {
     window.addEventListener('message', messageHandler)
